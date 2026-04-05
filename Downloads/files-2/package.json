@@ -1,0 +1,16 @@
+{
+  "name": "loxeai-evt",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute loxeai-evt-db --file=./migrations/001_init.sql",
+    "db:migrate:local": "wrangler d1 execute loxeai-evt-db --local --file=./migrations/001_init.sql"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260219.0",
+    "typescript": "^5.5.0",
+    "wrangler": "^4.67.0"
+  }
+}

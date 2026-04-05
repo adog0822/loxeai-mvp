@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  LoxeAI Evidence Tracer - Read-Only Cross-Account Role
+  Grants LoxeAI read-only access to collect SOC 2 compliance evidence
+  from your AWS account. No write permissions are granted.
+
+Parameters:
+  ExternalId:
+    Type: String
+    Default: b08c7972-22c1-5702-30cc-7912443aa9e0
+    Description: External ID for cross-account access (do not change)
+  LoxeAccountId:
+    Type: String
+    Description: LoxeAI's AWS Account ID (provided during onboarding)
+    AllowedPattern: '[0-9]{12}'
+    ConstraintDescription: Must be a 12-digit AWS account ID
+
+Resources:
+  LoxeAIReadOnlyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LoxeAI-EVT-ReadOnly
+      Description: Read-only role for LoxeAI Evidence Tracer SOC 2 compliance scanning
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${LoxeAccountId}:root'
+            Action: 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                'sts:ExternalId': !Ref ExternalId
+      Policies:
+        - PolicyName: LoxeAI-EVT-ReadOnly-Policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: IAMReadOnly
+                Effect: Allow
+                Action:
+                  - 'iam:ListUsers'
+                  - 'iam:ListRoles'
+                  - 'iam:ListPolicies'
+                  - 'iam:GetAccountPasswordPolicy'
+                  - 'iam:ListMFADevices'
+                  - 'iam:ListAccessKeys'
+                  - 'iam:GetAccessKeyLastUsed'
+                  - 'iam:ListAttachedUserPolicies'
+                  - 'iam:ListAttachedRolePolicies'
+                  - 'iam:ListUserPolicies'
+                  - 'iam:GetUser'
+                  - 'iam:GetRole'
+                Resource: '*'
+              - Sid: CloudTrailReadOnly
+                Effect: Allow
+                Action:
+                  - 'cloudtrail:DescribeTrails'
+                  - 'cloudtrail:GetTrailStatus'
+                  - 'cloudtrail:GetEventSelectors'
+                  - 'cloudtrail:ListTrails'
+                Resource: '*'
+              - Sid: S3ReadOnly
+                Effect: Allow
+                Action:
+                  - 's3:ListAllMyBuckets'
+                  - 's3:GetBucketVersioning'
+                  - 's3:GetBucketEncryption'
+                  - 's3:GetBucketPublicAccessBlock'
+                  - 's3:GetBucketLogging'
+                  - 's3:GetBucketPolicy'
+                  - 's3:GetBucketLocation'
+                  - 's3:GetBucketTagging'
+                Resource: '*'
+              - Sid: ConfigReadOnly
+                Effect: Allow
+                Action:
+                  - 'config:DescribeConfigurationRecorders'
+                  - 'config:DescribeDeliveryChannels'
+                  - 'config:GetComplianceSummaryByConfigRule'
+                  - 'config:DescribeConfigRuleEvaluationStatus'
+                Resource: '*'
+              - Sid: EC2ReadOnly
+                Effect: Allow
+                Action:
+                  - 'ec2:DescribeSecurityGroups'
+                  - 'ec2:DescribeInstances'
+                  - 'ec2:DescribeVpcs'
+                  - 'ec2:DescribeRegions'
+                  - 'ec2:DescribeSubnets'
+                  - 'ec2:DescribeNetworkAcls'
+                Resource: '*'
+              - Sid: CloudWatchReadOnly
+                Effect: Allow
+                Action:
+                  - 'cloudwatch:DescribeAlarms'
+                  - 'logs:DescribeLogGroups'
+                  - 'logs:DescribeMetricFilters'
+                Resource: '*'
+              - Sid: STSGetCallerIdentity
+                Effect: Allow
+                Action:
+                  - 'sts:GetCallerIdentity'
+                Resource: '*'
+
+Outputs:
+  RoleArn:
+    Description: Role ARN to enter in the LoxeAI Evidence Tracer
+    Value: !GetAtt LoxeAIReadOnlyRole.Arn
+  ExternalId:
+    Description: External ID used for this integration
+    Value: !Ref ExternalId

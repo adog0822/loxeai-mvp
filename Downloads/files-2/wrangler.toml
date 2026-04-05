@@ -1,0 +1,23 @@
+name = "loxeai-evt"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+AWS_REGION = "us-east-1"
+LOXE_EXTERNAL_ID = "b08c7972-22c1-5702-30cc-7912443aa9e0"
+
+# Set these via `wrangler secret put`:
+# ANTHROPIC_API_KEY
+# AWS_ACCESS_KEY_ID
+# AWS_SECRET_ACCESS_KEY
+
+[[d1_databases]]
+binding = "DB"
+database_name = "loxeai-evt-db"
+database_id = "28f4ec17-22d7-4c21-b91b-99ceb965685d"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "loxeai-evt-reports"
+# Create with: wrangler r2 bucket create loxeai-evt-reports
